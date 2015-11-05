@@ -12,10 +12,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 public class CompetitionActivity extends AppCompatActivity {
 
     private String ans;
     private int count = 0;
+    private String que;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +55,13 @@ public class CompetitionActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Connection clientConnection = new Connection();
+                Connection clientConnection =  (Connection) CompetitionActivity.this.getApplication();
                 try {
-                    String que = clientConnection.StartCom();
+                    que = clientConnection.StartCom();
                     int i = 0;
                     while (que.isEmpty()) {
                         Thread.sleep(1000); // 每1s请求一次返回信息
-                        que = clientConnection.getQue();
+                        que = clientConnection.getMsg();
 
                         if ((i++) == 99) { // 循环100次后停止尝试
                             runOnUiThread(new Runnable() {
@@ -72,8 +75,13 @@ public class CompetitionActivity extends AppCompatActivity {
                         }
                     }
                     if (!que.isEmpty()) {
-                        TextView tvv = (TextView) findViewById(R.id.que);
-                        tvv.setText(que);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                TextView tvv = (TextView) findViewById(R.id.que);
+                                tvv.setText(que);
+                            }
+                        });
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -98,27 +106,59 @@ public class CompetitionActivity extends AppCompatActivity {
             });
             return;
         }
-
-        new Thread(runnable).start();
+        checkAns();
     }
 
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            checkAns();
-        }
-    };
 
     private void checkAns() {
-//        String jsonStirng = "{" +
-//                "\"ans\":\"" + ans  + "\" " +  "}";
-//        String message = RequestHandler.sendPostRequest(
-//                "http://192.168.1.32:8000/ans/", jsonStirng);
-        if (count == 0) {
-            Intent intent = new Intent(this, EndActivity.class);
-            startActivity(intent);
-            CompetitionActivity.this.finish();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (count == 10) {
+                    Intent intent = new Intent(CompetitionActivity.this, EndActivity.class);
+                    startActivity(intent);
+                    CompetitionActivity.this.finish();
+                }
+                Connection clientConnection =  (Connection) CompetitionActivity.this.getApplication();
+                if (count == 9) {
+                    ans = "finish," + ans;
+                } else {
+                    ans = "start," + ans;
+                }
+                try {
+                    //判断是否成功
+                    que = clientConnection.submitAns(ans);
+                    int i = 0;
+                    while (que.isEmpty()) {
+                        Thread.sleep(1000); // 每1s请求一次登陆返回信息
+                        que = clientConnection.getMsg();
+
+                        if ((i++) == 99) { // 循环100次后停止尝试
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "连接失败，请检查网络是否连接并重试",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            break;
+                        }
+                    }
+                    if (!que.isEmpty()) {
+                        count++;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                TextView tvv = (TextView) findViewById(R.id.que);
+                                tvv.setText(que);
+                            }
+                        });
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
 

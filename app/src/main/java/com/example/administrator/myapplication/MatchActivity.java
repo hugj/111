@@ -37,7 +37,7 @@ public class MatchActivity extends Activity {
                     boolean flag = false;
                     int i = 0;
 
-                    //flag = matching();
+                    flag = matching();
                     while (!flag) {
                         Thread.sleep(5000); // 每5s发送一次匹配信息
                         if ((i++) == 1) { // 循环10次后停止匹配的尝试

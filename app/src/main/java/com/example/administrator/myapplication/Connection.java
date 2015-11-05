@@ -1,5 +1,7 @@
 package com.example.administrator.myapplication;
 
+import android.app.Application;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.InputStream;
@@ -8,7 +10,7 @@ import java.net.Socket;
 /**
  * Created by Administrator on 2015/11/4.
  */
-public class Connection {
+public class Connection extends Application {
     private Socket socket;
 
     private InputStream is;
@@ -17,12 +19,40 @@ public class Connection {
 
     private String msg = null;
 
-    public Connection()
+    public void init() throws IOException, Exception{
+        this.socket = new Socket("192.168.1.16", 8888);
+        this.is = socket.getInputStream();
+        this.os = socket.getOutputStream();
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
+    public OutputStream getOut() {
+        return os;
+    }
+
+    public void setOut(OutputStream out) {
+        this.os = out;
+    }
+
+    public InputStream getIn() {
+        return is;
+    }
+
+    public void setIn(InputStream is) {
+        this.is = is;
+    }
+
+    public void close()
     {
         try {
-            socket = new Socket("192.168.1.16", 8888);
-            is = socket.getInputStream();
-            os = socket.getOutputStream();
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -31,19 +61,14 @@ public class Connection {
     public String login(final String user)
     {
         try {
-            if (!user.isEmpty()) {
-                // 向服务器端发送用户的登录信息
-//                os.write(user.getBytes());
-//                os.flush();
+            // 向服务器端发送用户的登录信息
+            PrintStream out = new PrintStream(socket.getOutputStream(),true,"UTF-8");
+            out.println(user);// 写到服务器
+            //out.print(user + "\n");
+            out.flush();
 
-                PrintStream out = new PrintStream(socket.getOutputStream(),true,"UTF-8");
-                out.print(user + "\n");
-                out.flush();
-            }
             //获取返回信息
-            byte[] buffer = new byte[is.available()];
-            is.read(buffer);
-            msg = new String(buffer);
+            msg = getMsg();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -60,7 +85,6 @@ public class Connection {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return msg;
     }
 
@@ -69,28 +93,31 @@ public class Connection {
         try {
             String msg = "start";
             PrintStream out = new PrintStream(socket.getOutputStream(),true,"UTF-8");
-            out.print(msg + "\n");
+            out.println(msg);// 写到服务器
+            //out.print(msg + "\n");
             out.flush();
 
             //获取返回信息
-            msg = getQue();
+            msg = getMsg();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return msg;
     }
 
-    public String getQue()
+    public String submitAns(final String ans)
     {
         try {
+            PrintStream out = new PrintStream(socket.getOutputStream(),true,"UTF-8");
+            out.println(ans);// 写到服务器
+            //out.print(msg + "\n");
+            out.flush();
+
             //获取返回信息
-            byte[] buffer = new byte[is.available()];
-            is.read(buffer);
-            msg = new String(buffer);
+            msg = getMsg();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return msg;
     }
 }

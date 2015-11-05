@@ -67,7 +67,18 @@ public class LoginActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Connection clientConnection = new Connection();
+
+                Connection clientConnection =  (Connection) LoginActivity.this.getApplication();
+                try {
+                    clientConnection.init();
+
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+
+                //Connection clientConnection = new Connection();
                 try {
                     //判断是否登录成功
                     String msg = clientConnection.login(user);
@@ -88,6 +99,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                     if (!msg.isEmpty()) {
+                        //clientConnection.close();
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                         LoginActivity.this.finish();
