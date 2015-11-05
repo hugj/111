@@ -114,11 +114,6 @@ public class CompetitionActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if (count == 10) {
-                    Intent intent = new Intent(CompetitionActivity.this, EndActivity.class);
-                    startActivity(intent);
-                    CompetitionActivity.this.finish();
-                }
                 Connection clientConnection =  (Connection) CompetitionActivity.this.getApplication();
                 if (count == 9) {
                     ans = "finish," + ans;
@@ -144,13 +139,25 @@ public class CompetitionActivity extends AppCompatActivity {
                             break;
                         }
                     }
+                    if (count == 9) {
+                        Intent intent = new Intent(CompetitionActivity.this, EndActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("result", que);
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                        CompetitionActivity.this.finish();
+                    }
                     if (!que.isEmpty()) {
                         count++;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                TextView tvv = (TextView) findViewById(R.id.que);
-                                tvv.setText(que);
+                                TextView tvv1 = (TextView) findViewById(R.id.selfprogress);
+                                int c = count + 1;
+                                String tmp = "自己 " + c + "/10";
+                                tvv1.setText(tmp);
+                                TextView tvv2 = (TextView) findViewById(R.id.que);
+                                tvv2.setText(que);
                             }
                         });
                     }
@@ -160,7 +167,5 @@ public class CompetitionActivity extends AppCompatActivity {
             }
         }).start();
     }
-
-
 
 }

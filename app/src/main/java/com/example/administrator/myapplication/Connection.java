@@ -25,30 +25,6 @@ public class Connection extends Application {
         this.os = socket.getOutputStream();
     }
 
-    public Socket getSocket() {
-        return socket;
-    }
-
-    public void setSocket(Socket socket) {
-        this.socket = socket;
-    }
-
-    public OutputStream getOut() {
-        return os;
-    }
-
-    public void setOut(OutputStream out) {
-        this.os = out;
-    }
-
-    public InputStream getIn() {
-        return is;
-    }
-
-    public void setIn(InputStream is) {
-        this.is = is;
-    }
-
     public void close()
     {
         try {
