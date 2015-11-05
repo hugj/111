@@ -72,15 +72,9 @@ public class LoginActivity extends AppCompatActivity {
                     //判断是否登录成功
                     String msg = clientConnection.login(user);
                     int i = 0;
-                    do {
-                        if (!msg.isEmpty()) {
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            LoginActivity.this.finish();
-                        } else {
-                            Thread.sleep(1000); // 每1s请求一次登陆返回信息
-                            msg = clientConnection.login(user);
-                        }
+                    while (msg.isEmpty()) {
+                        Thread.sleep(1000); // 每1s请求一次登陆返回信息
+                        msg = clientConnection.getMsg();
 
                         if ((i++) == 99) { // 循环100次后停止尝试
                             runOnUiThread(new Runnable() {
@@ -92,8 +86,12 @@ public class LoginActivity extends AppCompatActivity {
                             });
                             break;
                         }
-                    } while (msg.isEmpty());
-
+                    }
+                    if (!msg.isEmpty()) {
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        LoginActivity.this.finish();
+                    }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

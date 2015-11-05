@@ -20,7 +20,7 @@ public class Connection {
     public Connection()
     {
         try {
-            socket = new Socket("192.168.1.11", 8888);
+            socket = new Socket("192.168.1.16", 8888);
             is = socket.getInputStream();
             os = socket.getOutputStream();
         } catch (IOException e) {
@@ -37,9 +37,52 @@ public class Connection {
 //                os.flush();
 
                 PrintStream out = new PrintStream(socket.getOutputStream(),true,"UTF-8");
-                out.print("hello server!");
+                out.print(user + "\n");
                 out.flush();
             }
+            //获取返回信息
+            byte[] buffer = new byte[is.available()];
+            is.read(buffer);
+            msg = new String(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return msg;
+    }
+
+    public String getMsg()
+    {
+        try {
+            //获取返回信息
+            byte[] buffer = new byte[is.available()];
+            is.read(buffer);
+            msg = new String(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return msg;
+    }
+
+    public String StartCom()
+    {
+        try {
+            String msg = "start";
+            PrintStream out = new PrintStream(socket.getOutputStream(),true,"UTF-8");
+            out.print(msg + "\n");
+            out.flush();
+
+            //获取返回信息
+            msg = getQue();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return msg;
+    }
+
+    public String getQue()
+    {
+        try {
             //获取返回信息
             byte[] buffer = new byte[is.available()];
             is.read(buffer);

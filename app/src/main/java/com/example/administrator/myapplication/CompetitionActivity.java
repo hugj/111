@@ -52,43 +52,34 @@ public class CompetitionActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                Connection clientConnection = new Connection();
                 try {
-                    boolean flag = true;
+                    String que = clientConnection.StartCom();
                     int i = 0;
+                    while (que.isEmpty()) {
+                        Thread.sleep(1000); // 每1s请求一次返回信息
+                        que = clientConnection.getQue();
 
-                    do {
-                        if (!flag)
-                            Thread.sleep(1000); // 每1s发送一次匹配信息
-                        flag = getQue();
-                        if ((i++) == 99) { // 循环100次后停止匹配的尝试
+                        if ((i++) == 99) { // 循环100次后停止尝试
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(getApplicationContext(), "网络连接失败，请稍后再试",
+                                    Toast.makeText(getApplicationContext(), "连接失败，请检查网络是否连接并重试",
                                             Toast.LENGTH_SHORT).show();
                                 }
                             });
-                            Thread.sleep(1000);
-                            Intent intent = new Intent(CompetitionActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            CompetitionActivity.this.finish();
+                            break;
                         }
-                    } while (!flag);
-
+                    }
+                    if (!que.isEmpty()) {
+                        TextView tvv = (TextView) findViewById(R.id.que);
+                        tvv.setText(que);
+                    }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
-    }
-
-    private Boolean getQue() {
-//
-//        String message = RequestHandler.sendGetRequest(
-//                "http://192.168.1.32:8000/");
-//        TextView tvv = (TextView) findViewById(R.id.que);
-//        tvv.setText(message);
-        return true;
     }
 
     public void Submit(View view) {
