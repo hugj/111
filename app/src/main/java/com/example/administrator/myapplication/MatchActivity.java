@@ -34,14 +34,13 @@ public class MatchActivity extends Activity {
             @Override
             public void run() {
                 try {
-                    boolean flag = true;
+                    boolean flag = false;
                     int i = 0;
 
-                    do {
-                        //if (!flag)
-                            Thread.sleep(5000); // 每5s发送一次匹配信息
-                        flag = matching();
-                        if ((i++) == 9) { // 循环10次后停止匹配的尝试
+                    //flag = matching();
+                    while (!flag) {
+                        Thread.sleep(5000); // 每5s发送一次匹配信息
+                        if ((i++) == 1) { // 循环10次后停止匹配的尝试
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -49,12 +48,11 @@ public class MatchActivity extends Activity {
                                             Toast.LENGTH_SHORT).show();
                                 }
                             });
-                            Thread.sleep(1000);
                             Intent intent = new Intent(MatchActivity.this, MainActivity.class);
                             startActivity(intent);
                             MatchActivity.this.finish();
                         }
-                    } while (!flag);
+                    }
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
